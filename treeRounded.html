@@ -1,0 +1,107 @@
+<html>
+<head>
+<script type="text/javascript" src="js/jquery-1.5.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.svg.js"></script>
+</head>
+<body>
+<style type="text/css">
+#canva { width: 400px; height: 400px; background:#F0F0F0 }
+</style>
+<div id="canva" class="canvas"></div>
+<script>
+
+
+
+
+$(function() {
+	$('#canva').svg();
+var svg = $('#canva').svg('get');
+
+function Brunch(a,b, deep) {
+    this.brunch1 = 0;
+    this.brunch2 = 0;
+	this.weight = 1;
+	this.lenght = Math.random()*30+20-deep*2;
+	this.a = a/3+(Math.random()*1-0);
+	this.b = b+(Math.random()*4-2);
+	this.deep = ++deep;
+	
+	this.display = function(x,y) {
+		var dx = Math.sin(this.a)*this.lenght;
+		var dy = Math.cos(this.a)*this.lenght;
+		svg.path("M"+x+","+y+" C"+(x)+","+(y-dy/3)+" "+(x-dx*Math.cos(this.b))+","+(y-dy/2)+" "+(x-dx*Math.cos(this.b))+","+(y-dy), {stroke: 'black', fill: 'none', 'stroke-width': this.weight});
+		//svg.line(x, y, x-dx*Math.cos(this.b), y-dy, {stroke: 'black', 'stroke-width': this.weight});
+
+		if (this.brunch1!=false)
+			this.brunch1.display(x-dx*Math.cos(this.b),y-dy);
+		
+        if (this.brunch2!=false)
+            this.brunch2.display(x-dx*Math.cos(this.b),y-dy);
+			
+	}
+
+	this.grove = function () {
+		this.weight++
+		if (this.brunch1)
+			this.brunch1.grove();
+		else	
+			this.brunch1 = new Brunch(this.a,this.b,this.deep);
+			
+		if (this.brunch2)
+			this.brunch2.grove();
+		else
+			if (Math.random()>0.2)
+					this.brunch2 = false;
+				else
+					this.brunch2 = new Brunch(this.a,this.b,this.deep);
+	}
+	
+	this.rotate = function (ungle) {
+		this.b +=ungle;
+		if (this.brunch1) this.brunch1.rotate(ungle);
+		if (this.brunch2) this.brunch2.rotate(ungle);
+	}
+	
+	this.leaf = function (x,y) {
+		var dx = Math.sin(this.a)*this.lenght;
+		var dy = Math.cos(this.a)*this.lenght;
+
+		if(this.brunch1)
+			this.brunch1.leaf(x-dx*Math.cos(this.b),y-dy)
+		else
+			svg.line(x, y, x, y-4, {stroke: 'pink', 'stroke-width': 3});
+
+		if(this.brunch2)
+			this.brunch2.leaf(x-dx*Math.cos(this.b),y-dy)
+		else
+			{
+			x-=dx*Math.cos(this.b); y-=dy;
+			svg.line(x, y, x, y-4, {stroke: 'pink', 'stroke-width': 3});
+			}
+	}
+}
+
+
+var tree = new Brunch(0,0,0);
+for (var i = 0; i < 10; i++) {
+	tree.grove();
+}
+
+
+setInterval(
+	function r(){
+		tree.rotate(0.02);
+		svg.clear();
+		tree.display(200,400);
+		tree.leaf(200,400);
+			}
+	,100);
+			
+			
+
+});
+
+
+</script>
+</body>
+</html>

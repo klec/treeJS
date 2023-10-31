@@ -1,0 +1,103 @@
+<html>
+<head>
+<script type="text/javascript" src="js/jquery-1.5.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.svg.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+<style type="text/css">
+@import "jquery.svg.css";
+
+#canva { width: 400px; height: 400px; background:#F0F0F0 }
+</style>
+
+<script>
+$(function() {
+	const loader = new THREE.TextureLoader();
+	const texture = loader.load('./bere.jpg');
+	const scene = new THREE.Scene();
+	function Brunch(a,b, deep) {
+		this.brunch1 = 0;
+		this.brunch2 = 0;
+		this.weight = 0.1;
+		this.lenght = Math.random()*10+10-deep;
+		this.a = a/3+(Math.random()/1.5);
+		this.b = b+(Math.random()*4-2);
+		this.deep = ++deep;
+		
+		this.display = function(x,y,z) {
+			var dx = Math.sin(this.a)*this.lenght*Math.sin(this.b);
+			var dz = Math.sin(this.a)*this.lenght*Math.cos(this.b);
+			var dy = Math.cos(this.a)*this.lenght;
+			
+			const startPoint = new THREE.Vector3(x, y, z);
+			const endPoint = new THREE.Vector3(x+dx, y+dy, z+dz);
+
+			const middlePoint = new THREE.Vector3().addVectors(startPoint, endPoint).multiplyScalar(0.5);
+
+			
+			const branchMaterial = new THREE.MeshBasicMaterial({ map: texture });
+			const branchGeometry = new THREE.CylinderGeometry(this.weight, this.weight, this.lenght, 8);
+			const branch = new THREE.Mesh(branchGeometry, branchMaterial);
+			branch.position.set(middlePoint.x, middlePoint.y, middlePoint.z);
+
+			const direction = new THREE.Vector3().subVectors(endPoint, startPoint).normalize();
+
+			branch.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+
+			scene.add(branch);
+			
+
+			if (this.brunch1!=false)
+				this.brunch1.display(x+dx,y+dy, z+dz);
+			
+			if (this.brunch2!=false)
+				this.brunch2.display(x+dx,y+dy, z+dz);
+				
+		}
+
+		this.grove = function () {
+			this.weight=this.weight+0.1;
+			if (this.brunch1)
+				this.brunch1.grove();
+			else	
+				this.brunch1 = new Brunch(this.a,this.b,this.deep);
+				
+			if (this.brunch2)
+				this.brunch2.grove();
+			else
+				if (Math.random()>0.2)
+						this.brunch2 = false;
+					else
+						this.brunch2 = new Brunch(this.a,this.b,this.deep);
+		}
+		
+		
+	}
+
+	var tree = new Brunch(0,0,0);
+	for (var i = 0; i < 12; i++) {
+		tree.grove();
+	}
+	tree.display(0,0,0);
+
+
+	const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+	camera.position.z = 100;
+	camera.position.y = 60;
+	const renderer = new THREE.WebGLRenderer();
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	document.body.appendChild(renderer.domElement);
+	function animate() {
+		requestAnimationFrame(animate);
+		scene.rotation.y += 0.01;
+		renderer.render(scene, camera);
+	}
+
+	animate();
+});
+
+
+</script>
+</body>
+</html>

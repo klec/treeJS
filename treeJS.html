@@ -1,0 +1,118 @@
+<html>
+<head>
+<script type="text/javascript" src="js/jquery-1.5.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.svg.js"></script>
+</head>
+<body>
+<style type="text/css">
+@import "jquery.svg.css";
+
+#canva { width: 400px; height: 400px; background:#F0F0F0 }
+</style>
+<div id="canva" class="canvas"></div>
+<script>
+
+
+
+
+$(function() {
+	$('#canva').svg();
+var svg = $('#canva').svg('get');
+
+function Brunch(a,b, deep) {
+    this.brunch1 = 0;
+    this.brunch2 = 0;
+	this.weight = 0.1;
+	this.lenght = Math.random()*20+20-deep*2;
+	this.a = a/3+(Math.random()*1-0);
+	this.b = b+(Math.random()*4-2);
+	this.deep = ++deep;
+	
+	this.display = function(x,y) {
+		var dx = Math.sin(this.a)*this.lenght;//*Math.sin(this.b);
+		var dy = Math.cos(this.a)*this.lenght;
+		svg.line(x, y, x-dx*Math.cos(this.b), y-dy, {stroke: 'black', 'stroke-width': this.weight});
+		
+		dx-=2;
+		dy-=2;
+
+		if (this.brunch1!=false)
+			this.brunch1.display(x-dx*Math.cos(this.b),y-dy);
+		
+		if (this.brunch2!=false)
+			if (this.brunch2!=false) this.brunch2.display(x-dx*Math.cos(this.b),y-dy);
+			
+	}
+
+	this.grove = function () {
+		this.weight=this.weight+0.2;
+		if (this.brunch1)
+			this.brunch1.grove();
+		else	
+			this.brunch1 = new Brunch(this.a,this.b,this.deep);
+			
+		if (this.brunch2)
+			this.brunch2.grove();
+		else
+			if (Math.random()>0.2)
+					this.brunch2 = false;
+				else
+					this.brunch2 = new Brunch(this.a,this.b,this.deep);
+	}
+	
+	this.rotate = function(angle) {
+		this.b +=angle;
+		if (this.brunch1) this.brunch1.rotate(angle);
+		if (this.brunch2) this.brunch2.rotate(angle);
+	}
+	
+	this.leaf = function (x,y) {
+		var dx = Math.sin(this.a)*this.lenght;//*Math.sin(this.b);
+		var dy = Math.cos(this.a)*this.lenght;
+		
+		dx-=1;
+		dy-=1;
+		
+		if(this.brunch1)
+			this.brunch1.leaf(x-dx*Math.cos(this.b),y-dy)
+		else
+			svg.line(x, y-4, x, y-8, {stroke: 'pink', 'stroke-width': 3});
+		
+		if(this.brunch2)
+			this.brunch2.leaf(x-dx*Math.cos(this.b),y-dy)
+		else
+			{
+			x-=dx*Math.cos(this.b); y-=dy;
+			svg.line(x, y-4, x, y-8, {stroke: 'pink', 'stroke-width': 3});
+			//svg.line(x+3, y, x-3, y-4, {stroke: 'green', 'stroke-width': 3});
+			//svg.line(x-4, y+1, x-3, y-3, {stroke: 'green', 'stroke-width': 3});
+			}
+	}		
+}
+
+
+var tree = new Brunch(0,0,0);
+for (var i = 0; i < 10; i++) {
+	tree.grove();
+	//svg.clear();
+	//tree.display(400,600);
+}
+
+
+setInterval(
+	function r(){
+		tree.rotate(0.02);
+		svg.clear();
+		tree.display(200,400);
+		tree.leaf(200,400);
+			}
+	,100);
+			
+			
+
+});
+
+
+</script>
+</body>
+</html>
